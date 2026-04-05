@@ -2,17 +2,16 @@
 <html lang="de">
     <head>
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
         <title>Dorf Flohmarkt Uettingen 2026</title>
 
         <style>
             body {
-                margin: 20;
+                margin: 0;
                 font-family: Arial, sans-serif;
-                display: flex;
-                flex-direction: column;
-                height: 100vh;
-                overflow: hidden; /* verhindert Scrollen */
                 text-align: center;
                 background-image: linear-gradient(
                     to right,
@@ -40,54 +39,46 @@
                 margin-right: 20px;
             }
 
-            .container {
-                flex: 1;
+            .viewport {
+                width: 100vw;
+                height: 100vh;
+                margin: 0px;
                 display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                border: 0px solid #fd7979;
-                box-sizing: border-box;
-                margin-bottom: 20px;
-            }
-
-            .img-container {
-                position: relative;
-                flex: 1;
-                display: flex;
+                justify-content: center;
                 align-items: center;
+                overflow: hidden;
+                touch-action: none; /* Wichtig für Gesten */
             }
 
-            .img-container img {
-                width: 100%;
+            #zoom-img {
+                transform-origin: 0 0; /* Wichtig für korrekten Zoom */
+                cursor: grab;
+                max-width: 100%;
                 height: auto;
-                display: block;
-                touch-action: none; /* wichtig für Touch */
             }
 
-            .zoom-result {
-                flex: 1;
-                border: 1px solid #ccc;
-                background-repeat: no-repeat;
-                background-size: 400%; /* Zoom-Stärke */
-                margin-top: 10px;
-                border-radius: 20px;
-                margin-bottom: 40px;
+            /* Minimap Styles */
+            .minimap {
+                position: absolute;
+                bottom: 20px;
+                right: 20px;
+                width: 150px;
+                height: 100px;
+                border: 2px solid white;
+                overflow: hidden;
+                pointer-events: none; /* Minimap nicht anklickbar */
+                z-index: 10;
             }
 
-            @media (orientation: landscape) {
-                .container {
-                    flex-direction: row;
-                }
+            .minimap img {
+                width: 100%;
+                height: 100%;
+            }
 
-                .img-container,
-                .zoom-result {
-                    flex: 1;
-                    margin: 5px;
-                }
-
-                .zoom-result {
-                    margin-top: 0;
-                }
+            .minimap-lens {
+                position: absolute;
+                border: 2px solid rgb(0, 3, 197);
+                background-color: rgba(22, 100, 255, 0.2);
             }
         </style>
     </head>
@@ -95,51 +86,150 @@
     <body>
         <h2>Dorf Flohmarkt Uettingen 2026</h2>
         <p>
-            📅 Sonntag, 17. Mai ⏳ 10:00 bis 16:00 Uhr ☀️ findet bei jedem Wetter statt ☔ 
+            📅 Sonntag, 17. Mai ⏳ 10:00 bis 16:00 Uhr ☀️ findet bei jedem
+            Wetter statt ☔
         </p>
 
-        <div class="container">
-            <div class="img-container">
-                <img id="myImage" src="Flohmarkt-Ortsplan2026.png" alt="Dorf Flohmarkt Uettingen 2026" />
-            </div>
-            <div id="zoomResult" class="zoom-result"></div>
+        <div class="viewport" id="viewport">
+            <img
+                src="Flohmarkt-Ortsplan2026.png"
+                alt="Zoomable"
+                id="zoom-img"
+            />
+        </div>
+
+        <!-- Minimap -->
+        <div class="minimap" id="minimap">
+            <img src="Flohmarkt-Ortsplan2026.png" alt="Mini" />
+            <div class="minimap-lens" id="minimap-lens"></div>
         </div>
 
         <script>
-            const img = document.getElementById("myImage");
-            const result = document.getElementById("zoomResult");
+            const viewport = document.getElementById("viewport");
+            const img = document.getElementById("zoom-img");
+            const lens = document.getElementById("minimap-lens");
 
-            let zoomLevel = 4;
+            let scale = 1;
+            let pannedX = 0;
+            let pannedY = 0;
+            let startX = 0;
+            let startY = 0;
+            let isDragging = false;
 
-            result.style.backgroundImage = `url('${img.src}')`;
+            // Touch-Gesten (Pinch-to-zoom)
+            let initialDistance = 0;
+            let initialScale = 1;
 
-            function moveZoom(e) {
-                e.preventDefault();
+            function setTransform() {
+                // Grenzen berechnen, damit Bild nicht aus Viewport verschwindet
+                const imgWidth = img.offsetWidth * scale;
+                const imgHeight = img.offsetHeight * scale;
 
-                const rect = img.getBoundingClientRect();
+                // Einfache Clamp-Logik
+                pannedX = Math.min(
+                    0,
+                    Math.max(pannedX, viewport.offsetWidth - imgWidth),
+                );
+                pannedY = Math.min(
+                    0,
+                    Math.max(pannedY, viewport.offsetHeight - imgHeight),
+                );
 
-                let x, y;
-
-                if (e.touches) {
-                    x = e.touches[0].clientX - rect.left;
-                    y = e.touches[0].clientY - rect.top;
-                } else {
-                    x = e.offsetX;
-                    y = e.offsetY;
-                }
-
-                // Grenzen einhalten
-                x = Math.max(0, Math.min(x, rect.width));
-                y = Math.max(0, Math.min(y, rect.height));
-
-                let bgX = (x / rect.width) * 100;
-                let bgY = (y / rect.height) * 100;
-
-                result.style.backgroundPosition = `${bgX}% ${bgY}%`;
+                img.style.transform = `translate(${pannedX}px, ${pannedY}px) scale(${scale})`;
+                updateMinimap();
             }
 
-            img.addEventListener("mousemove", moveZoom);
-            img.addEventListener("touchmove", moveZoom);
+            function updateMinimap() {
+                // Position des Lenses auf der Minimap berechnen
+                const viewportWidth = viewport.offsetWidth;
+                const viewportHeight = viewport.offsetHeight;
+                const imgWidth = img.offsetWidth * scale;
+                const imgHeight = img.offsetHeight * scale;
+
+                const lensWidth = (viewportWidth / imgWidth) * 150;
+                const lensHeight = (viewportHeight / imgHeight) * 100;
+                const lensX = (-pannedX / imgWidth) * 150;
+                const lensY = (-pannedY / imgHeight) * 100;
+
+                lens.style.width = `${lensWidth}px`;
+                lens.style.height = `${lensHeight}px`;
+                lens.style.left = `${lensX}px`;
+                lens.style.top = `${lensY}px`;
+            }
+
+            // --- Event Listeners für Maus (Desktop) ---
+            viewport.addEventListener("mousedown", (e) => {
+                isDragging = true;
+                startX = e.clientX - pannedX;
+                startY = e.clientY - pannedY;
+                img.style.cursor = "grabbing";
+            });
+
+            window.addEventListener("mouseup", () => {
+                isDragging = false;
+                img.style.cursor = "grab";
+            });
+
+            window.addEventListener("mousemove", (e) => {
+                if (!isDragging) return;
+                e.preventDefault();
+                pannedX = e.clientX - startX;
+                pannedY = e.clientY - startY;
+                setTransform();
+            });
+
+            viewport.addEventListener("wheel", (e) => {
+                e.preventDefault();
+                const xs = (e.clientX - pannedX) / scale;
+                const ys = (e.clientY - pannedY) / scale;
+
+                const delta = -e.deltaY;
+                delta > 0 ? (scale *= 1.1) : (scale /= 1.1);
+                scale = Math.min(Math.max(1, scale), 10); // Min 1x, Max 4x
+
+                pannedX = e.clientX - xs * scale;
+                pannedY = e.clientY - ys * scale;
+                setTransform();
+            });
+
+            // --- Event Listeners für Touch (Mobile) ---
+            viewport.addEventListener("touchstart", (e) => {
+                if (e.touches.length === 2) {
+                    initialDistance = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY,
+                    );
+                    initialScale = scale;
+                } else if (e.touches.length === 1) {
+                    isDragging = true;
+                    startX = e.touches[0].clientX - pannedX;
+                    startY = e.touches[0].clientY - pannedY;
+                }
+            });
+
+            viewport.addEventListener("touchmove", (e) => {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+                    const currentDistance = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY,
+                    );
+                    scale = initialScale * (currentDistance / initialDistance);
+                    scale = Math.min(Math.max(1, scale), 4);
+                    setTransform();
+                } else if (e.touches.length === 1 && isDragging) {
+                    pannedX = e.touches[0].clientX - startX;
+                    pannedY = e.touches[0].clientY - startY;
+                    setTransform();
+                }
+            });
+
+            viewport.addEventListener("touchend", () => {
+                isDragging = false;
+            });
+
+            // Init
+            window.addEventListener("load", setTransform);
         </script>
     </body>
 </html>

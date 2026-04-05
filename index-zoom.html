@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="de">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Dorf Flohmarkt Uettingen 2026</title>
+
+        <style>
+            body {
+                margin: 20;
+                font-family: Arial, sans-serif;
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+                overflow: hidden; /* verhindert Scrollen */
+                text-align: center;
+                background-image: linear-gradient(
+                    to right,
+                    #0ebfe0 0%,
+                    #fbdf56 100%
+                );
+            }
+
+            h2 {
+                color: white;
+                margin: 10px 0;
+                flex: 0 0 auto;
+            }
+
+            p {
+                background-color: white;
+                padding: 10px;
+                margin: 0;
+                font-size: 12px;
+                font-weight: 600;
+                flex: 0 0 auto;
+                border-radius: 20px;
+                margin-bottom: 10px;
+                margin-left: 20px;
+                margin-right: 20px;
+            }
+
+            .container {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                border: 0px solid #fd7979;
+                box-sizing: border-box;
+                margin-bottom: 20px;
+            }
+
+            .img-container {
+                position: relative;
+                flex: 1;
+                display: flex;
+                align-items: center;
+            }
+
+            .img-container img {
+                width: 100%;
+                height: auto;
+                display: block;
+                touch-action: none; /* wichtig für Touch */
+            }
+
+            .zoom-result {
+                flex: 1;
+                border: 1px solid #ccc;
+                background-repeat: no-repeat;
+                background-size: 400%; /* Zoom-Stärke */
+                margin-top: 10px;
+                border-radius: 20px;
+                margin-bottom: 40px;
+            }
+
+            @media (orientation: landscape) {
+                .container {
+                    flex-direction: row;
+                }
+
+                .img-container,
+                .zoom-result {
+                    flex: 1;
+                    margin: 5px;
+                }
+
+                .zoom-result {
+                    margin-top: 0;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <h2>Dorf Flohmarkt Uettingen 2026</h2>
+        <p>
+            📅 Sonntag, 17. Mai ⏳ 10:00 bis 16:00 Uhr ☀️ findet bei jedem Wetter statt ☔ 
+        </p>
+
+        <div class="container">
+            <div class="img-container">
+                <img id="myImage" src="Flohmarkt-Ortsplan2026.png" alt="Dorf Flohmarkt Uettingen 2026" />
+            </div>
+            <div id="zoomResult" class="zoom-result"></div>
+        </div>
+
+        <script>
+            const img = document.getElementById("myImage");
+            const result = document.getElementById("zoomResult");
+
+            let zoomLevel = 4;
+
+            result.style.backgroundImage = `url('${img.src}')`;
+
+            function moveZoom(e) {
+                e.preventDefault();
+
+                const rect = img.getBoundingClientRect();
+
+                let x, y;
+
+                if (e.touches) {
+                    x = e.touches[0].clientX - rect.left;
+                    y = e.touches[0].clientY - rect.top;
+                } else {
+                    x = e.offsetX;
+                    y = e.offsetY;
+                }
+
+                // Grenzen einhalten
+                x = Math.max(0, Math.min(x, rect.width));
+                y = Math.max(0, Math.min(y, rect.height));
+
+                let bgX = (x / rect.width) * 100;
+                let bgY = (y / rect.height) * 100;
+
+                result.style.backgroundPosition = `${bgX}% ${bgY}%`;
+            }
+
+            img.addEventListener("mousemove", moveZoom);
+            img.addEventListener("touchmove", moveZoom);
+        </script>
+    </body>
+</html>
