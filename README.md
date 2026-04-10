@@ -16,7 +16,7 @@ Je nach Status, kommentiere die Passagen `announcement`, `map`, `thank_you` aus 
 
 - `announcement` : Vorankündigung (ca. zwei Wochen vor beginn)
 
-- `map` : der aktuelle Karte und den Straßenplan
+- `map` : die aktuelle Karte und den Straßenplan
 
 - `thank_you` : Danksagung nach dem Flohmarkt
 
