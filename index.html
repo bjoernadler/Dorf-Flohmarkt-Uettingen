@@ -4,7 +4,7 @@
         <meta charset="UTF-8" />
         <meta
             name="viewport"
-            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
         />
         <title>Dorf Flohmarkt Uettingen 2026</title>
 
@@ -18,7 +18,7 @@
                     #0ebfe0 0%,
                     #fbdf56 100%
                 );
-                max-width: 100%;
+                max-width: 100%; 
             }
 
             h2 {
@@ -27,7 +27,7 @@
                 flex: 0 0 auto;
             }
 
-            p {
+            .topic {
                 background-color: white;
                 padding: 10px;
                 margin: 0;
@@ -38,6 +38,14 @@
                 margin-bottom: 10px;
                 margin-left: 20px;
                 margin-right: 20px;
+            }
+
+            .announcement {
+                margin: 100px;
+                font-size: 18px;
+                font-weight: 600;
+                line-height: 2;
+                flex: 1;
             }
 
             .viewport {
@@ -57,17 +65,38 @@
 
     <body>
         <h2>Dorf Flohmarkt Uettingen 2026</h2>
-        <p>
+        <p class="topic">
             📅 Sonntag, 17. Mai ⏳ 10:00 bis 16:00 Uhr ☀️ findet bei jedem
-            Wetter statt ☔
+            Wetter statt ☔ 🚸 
         </p>
 
+        <!-- announcement -->
+        <!-- <p class="announcement">
+            Der Ortsplan mit allen Ständen und Höfen ist anfang Mai verfügbar
+        </p> -->
+
+        <!-- map -->
         <div class="viewport" id="viewport">
             <img
-                src="Flohmarkt-Ortsplan2026.png"
-                alt="Zoomable"
+                src="Flohmarktkarte-2026.png"
+                alt="Dorf Flohmarkt Uettingen Karte 2026"
+                id="zoom-img"
+            />
+            <br />
+            <img
+                src="Strassenverzeichnis-2026.png"
+                alt="Dorf Flohmarkt Uettingen Straßenplan 2026"
                 id="zoom-img"
             />
         </div>
+
+        <!-- thank_you -->
+        <!-- <p class="announcement">
+            Vielen Dank für Euren Besuch und Teilnahme! 
+            <br />
+            <br />
+            Wir freuen uns auf das nächste Jahr!
+        </p> -->
+
     </body>
 </html>
